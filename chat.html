@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Socket.IO chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <style>
+    body {
+      margin: 0;
+      padding-bottom: 3rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    #div0 {
+      margin-left: 800px;  
+    }
+
+    #label1{
+      font-size: x-large;
+    }
+
+    #label2{
+      font-family:Monotype Corsiva;
+    }
+
+    #form {
+      background: rgba(0, 0, 0, 0.15);
+      padding: 0.25rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      height: 3rem;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    #input {
+      background: rgba(0, 0, 0, 0.15);
+      padding: 0.25rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      height: 3rem;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    #inputname {
+      background: rgba(49, 88, 1, 0.15);
+      padding: 0.25rem;
+      position: absolute;
+      bottom: 50px;
+      left: 0;
+      right: 0;
+      display: flex;
+      height: 3rem;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    #button1 {
+      display: inline-block;
+      background-color: #292035;
+      padding: 0.25rem;
+      position: fixed;
+      bottom: 5px;
+      right: 0;
+      display: inline-block;
+      height: 3rem;
+      border: 4px double #cccccc; /* add this line */
+      border-radius: 10px; /* add this line */
+      box-sizing: none;
+      backdrop-filter: blur(10px);
+      color: #ffffff;
+    }
+
+    #input {
+      background: rgba(20, 146, 204, 0.964);
+      border: none;
+      padding: 0 1rem;
+      flex-grow: 1;
+      border-radius: 2rem;
+      margin: 0.25rem;
+    }
+
+    #input:focus {
+      outline: none;
+    }
+
+    #inputname {
+      background: rgba(10, 10, 1, 0.15);
+      border: none;
+      padding: 0 1rem;
+      flex-grow: 1;
+      border-radius: 2rem;
+      margin: 0.25rem;
+    }
+
+    #inputname:focus {
+      outline: none;
+    }
+
+    li {
+      padding: 0.5rem 1rem;
+    }
+
+    li:nth-child(odd) {
+      background: #70b5a5;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages>li {
+      padding: 0.5rem 1rem;
+    }
+
+    #messages>li:nth-child(2n) {
+      background: #7ec5b2;
+    }
+
+    #messages1 {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages1>li {
+      padding: 0.5rem 1rem;
+    }
+
+    #messages1>li:nth-child(2n) {
+      background: #383937;
+    }
+
+
+    .toprightcorner{
+   position:absolute;
+   top:0;
+   right:100px;
+  }
+  
+  .label {
+    color: white;
+    padding: 8px;
+  }
+
+  .info {background-color: #6494ba;} /* Blue */
+
+  </style>
+  <link href="https://fonts.googleapis.com/css?family=Rubik:400,500" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <a href='/'><img style="margin-left: 20px;" src="/img" width="700" height="200" alt="Leave chat room"></a>
+  <div id="div0" class="w3-container">
+    <label class="label info" style="text-align: center; font-size: 37px">Users</label>
+    <div id="div1" class="w3-panel w3-card">
+      <!-- LABELS COME HERE  -->
+    </div>
+  </div>
+  <ul id="messages1" class="class1">
+    <!-- messages come here -->
+  </ul>
+  <!-- <input id="inputname" autocomplete="off" oninput="typing()"/></input> -->
+  <input id="input" autocomplete="off"/>
+  <button id="button1" onclick="chat()">Send</button>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var name;
+
+    $("#input").keypress(function (event) {
+      if (event.keyCode == 13) {
+        $("#button1").click();
+      }
+    });
+
+    var socket = io();
+
+    const params = new URLSearchParams(
+      window.location.search
+    );
+    name = params.get("name");
+    console.log('lnlawd ', name);
+    
+    // sending name to server for storage
+    // socket.emit('names', name);
+
+    // {name} connected functionality
+
+    socket.emit('conn', name);
+    socket.on('conn', (names) => {
+      $("#messages1").empty();
+      for( let i=0; i<names.length; i++ ){
+      $("#messages1").append('<li style="padding: 0.5rem 1rem;">', names[i] + ' connected', '</li>');
+      }
+    });
+
+    // retrieving name from name.html sending chat name and message to server functionality
+    function chat() {
+      if ($("#input").val()) {
+        socket.emit('chat message', { username: name, usermessage: $("#input").val() });
+        $("#input").val('');
+      }
+    };
+
+    // displaying chat message functionality
+    socket.on('chat message', function (msg) {
+      if (msg.username && msg.usermessage) {
+        $("#messages1").append('<li style="padding: 0.5rem 1rem;">', msg.username, ': ', msg.usermessage, '</li>');
+      }
+    });
+
+    // user is typing functionality
+
+    $("#input").keyup(function (e) {
+        if (e.keyCode == 13) {
+        }
+        else if(e.keyCode != 13 
+        ){
+          socket.emit('is typing', { name: name });
+          console.log('++++++');
+        }
+        setTimeout(()=>socket.emit('now online', { name: name }), 3000);
+        console.log('---- ', name);
+      });
+
+      socket.on('is typing', function(msg){
+        console.log('[]][][][][][]', msg);
+        $('#label2').text('is typing');
+        //}
+      });
+
+      socket.on('now online', function(msg){
+        console.log('[]][][][][][]', msg);
+        $('#label2').text('online');
+      });
+
+    // label - A, B, C ..
+    socket.emit('label', name);
+
+    socket.on('label', ([names, status]) => {
+      $("#div1").innerHTML = "";
+      for( let i=names.length-1; i>=0; i-- ){
+        for( let j=1; j<=names.length; j+=2){
+      $("#div1").append("<label id='label'" + j + ">" + names[i] + "</label><br><label id='label'" + j+1 + ">" + status + "</label><br>");
+      }}
+    });
+
+    // status - online/left/is typing...
+    
+    // $("#div1").append("<label id='label1'>" + name + "</label><br><label id='label2'>(online)</label>");
+    // $("#ul1").append("<li>" + label1 + "</li>");
+    // $("#label2").text();
+    // $("#label3").text();
+    // $("#label4").text();
+    // $("#label5").text();
+    // $("#label6").text();
+
+  </script>
+</body>
+
+</html>

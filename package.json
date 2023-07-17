@@ -1,0 +1,17 @@
+{
+    "name": "chattingapp",
+    "version": "0.0.1",
+    "description": "my first socket.io app",
+    "scripts": {
+        "start": "nodemon index.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "nodemon": "^2.0.22",
+        "socket.io": "^4.6.2",
+        "sqlite3": "^5.1.6"
+    },
+    "devDependencies": {
+        "eslint": "^8.42.0"
+    }
+}
